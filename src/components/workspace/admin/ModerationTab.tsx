@@ -10,11 +10,11 @@ import { ErrorNote } from '../../ui/ErrorNote';
 import { Input } from '../../ui/Input';
 import { Spinner } from '../../ui/Spinner';
 import { resourceTypeLabel } from '../../../lib/format';
-import type { Resource } from '../../../types';
+import type { ResourceDetail } from '../../../types';
 
 export default function ModerationTab() {
   const { toast } = useToast();
-  const [pending, setPending] = useState<Resource[]>([]);
+  const [pending, setPending] = useState<ResourceDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -96,6 +96,23 @@ export default function ModerationTab() {
                   </div>
                   <PriceBadge isPaid={item.isPaid} price={item.price} />
                 </div>
+
+                {/* Moderator təsdiqdən əvvəl materialın özünü görməlidir —
+                    backend linki müəllifə/adminə həmişə açır. */}
+                {item.externalUrl ? (
+                  <a
+                    href={item.externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block break-all text-sm font-semibold text-brand-blue hover:underline"
+                  >
+                    Materialı aç ↗ {item.externalUrl}
+                  </a>
+                ) : item.originalFileName ? (
+                  <p className="mt-3 text-sm text-brand-muted">
+                    Fayl: <span className="text-brand-ink">{item.originalFileName}</span>
+                  </p>
+                ) : null}
 
                 {rejectingId === item.id ? (
                   <div className="mt-4 rounded-xl bg-danger-bg p-4">

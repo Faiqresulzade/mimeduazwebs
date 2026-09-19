@@ -8,6 +8,10 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const TrainingsPage = lazy(() => import('./pages/TrainingsPage'));
 const TrainingDetailPage = lazy(() => import('./pages/TrainingDetailPage'));
 const TrainingLessonsPage = lazy(() => import('./pages/TrainingLessonsPage'));
+const ExamsPage = lazy(() => import('./pages/ExamsPage'));
+const ExamDetailPage = lazy(() => import('./pages/ExamDetailPage'));
+const ExamRunPage = lazy(() => import('./pages/ExamRunPage'));
+const ExamResultPage = lazy(() => import('./pages/ExamResultPage'));
 const ResourcesPage = lazy(() => import('./pages/ResourcesPage'));
 const ResourceDetailPage = lazy(() => import('./pages/ResourceDetailPage'));
 const AuthorPage = lazy(() => import('./pages/AuthorPage'));
@@ -30,6 +34,8 @@ const MyCertificatesTab = lazy(
   () => import('./components/workspace/teacher/MyCertificatesTab'),
 );
 const EarningsTab = lazy(() => import('./components/workspace/teacher/EarningsTab'));
+const ExamBuilderTab = lazy(() => import('./components/workspace/teacher/ExamBuilderTab'));
+const PurchasedTab = lazy(() => import('./components/workspace/teacher/PurchasedTab'));
 
 const AdminPanelPage = lazy(() => import('./pages/AdminPanelPage'));
 const ModerationTab = lazy(() => import('./components/workspace/admin/ModerationTab'));
@@ -41,6 +47,9 @@ const SalesTab = lazy(() => import('./components/workspace/admin/SalesTab'));
 const AdminCertificatesTab = lazy(
   () => import('./components/workspace/admin/AdminCertificatesTab'),
 );
+const DashboardTab = lazy(() => import('./components/workspace/admin/DashboardTab'));
+const AdminExamsTab = lazy(() => import('./components/workspace/admin/AdminExamsTab'));
+const LogsTab = lazy(() => import('./components/workspace/admin/LogsTab'));
 
 export default function App() {
   return (
@@ -51,6 +60,8 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="telimler" element={<TrainingsPage />} />
           <Route path="telimler/:id" element={<TrainingDetailPage />} />
+          <Route path="sinaqlar" element={<ExamsPage />} />
+          <Route path="sinaqlar/:id" element={<ExamDetailPage />} />
           <Route path="resurslar" element={<ResourcesPage />} />
           <Route path="resurslar/:id" element={<ResourceDetailPage />} />
           <Route path="muellif/:id" element={<AuthorPage />} />
@@ -77,6 +88,10 @@ export default function App() {
           <Route element={<ProtectedRoute message="Dərslər üçün hesaba daxil olun" />}>
             <Route path="telimler/:id/dersler" element={<TrainingLessonsPage />} />
           </Route>
+          <Route element={<ProtectedRoute message="Sınaq üçün hesaba daxil olun" />}>
+            <Route path="sinaqlar/:id/cehd/:attemptId" element={<ExamRunPage />} />
+            <Route path="sinaq-neticesi/:attemptId" element={<ExamResultPage />} />
+          </Route>
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>
@@ -86,9 +101,11 @@ export default function App() {
           <Route path="panel" element={<TeacherPanelPage />}>
             <Route index element={<Navigate to="telimlerim" replace />} />
             <Route path="telimlerim" element={<MyTrainingsTab />} />
+            <Route path="aldiqlarim" element={<PurchasedTab />} />
             <Route path="resurslarim" element={<MyResourcesTab />} />
             <Route path="yukle" element={<UploadTab />} />
             <Route path="imtahanlar" element={<QuizBuilderTab />} />
+            <Route path="sinaqlarim" element={<ExamBuilderTab />} />
             <Route path="sertifikatlarim" element={<MyCertificatesTab />} />
             <Route path="qazanc" element={<EarningsTab />} />
           </Route>
@@ -97,12 +114,15 @@ export default function App() {
         {/* Admin paneli */}
         <Route element={<ProtectedRoute role="Admin" />}>
           <Route path="admin" element={<AdminPanelPage />}>
-            <Route index element={<Navigate to="moderasiya" replace />} />
+            <Route index element={<Navigate to="icmal" replace />} />
+            <Route path="icmal" element={<DashboardTab />} />
             <Route path="moderasiya" element={<ModerationTab />} />
+            <Route path="sinaqlar" element={<AdminExamsTab />} />
             <Route path="telimler" element={<AdminTrainingsTab />} />
             <Route path="istifadeciler" element={<UsersTab />} />
             <Route path="satis" element={<SalesTab />} />
             <Route path="sertifikatlar" element={<AdminCertificatesTab />} />
+            <Route path="loglar" element={<LogsTab />} />
           </Route>
         </Route>
       </Routes>

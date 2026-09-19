@@ -41,6 +41,12 @@ export const resourcesApi = {
     return data;
   },
 
+  /** Ödənişi tamamlanmış sifarişlərdəki resurslar — "Aldıqlarım" siyahısı. */
+  async purchased() {
+    const { data } = await api.get<Resource[]>('/resources/purchased');
+    return data;
+  },
+
   async byAuthor(userId: string) {
     const { data } = await api.get<AuthorProfile>(`/resources/author/${userId}`);
     return data;

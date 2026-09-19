@@ -9,6 +9,7 @@ import { Button } from '../ui/Button';
 const navItems = [
   { to: '/telimler', label: 'Təlimlər' },
   { to: '/resurslar', label: 'Resurs Bankı' },
+  { to: '/sinaqlar', label: 'Sınaqlar' },
   { to: '/promptlar', label: 'Prompt Kitabxanası' },
   { to: '/haqqimizda', label: 'Haqqımızda' },
 ];

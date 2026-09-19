@@ -15,7 +15,7 @@ export type FileResourceType = 'WorkSheet' | 'Presentation' | 'Test' | 'MethodGu
 export type LinkResourceType = 'Video' | 'ExternalLink';
 export type ResourceStatus = 'Pending' | 'Approved' | 'Rejected';
 export type TrainingFormat = 'Live' | 'Online' | 'Video';
-export type ItemType = 'Resource' | 'Training';
+export type ItemType = 'Resource' | 'Training' | 'Exam';
 export type UserRole = 'Student' | 'Teacher' | 'Admin';
 export type AccountType = 'Student' | 'Teacher';
 export type EnrollmentStatus = 'InProgress' | 'Completed';
@@ -75,6 +75,9 @@ export interface Resource {
   hasQuiz: boolean;
   /** Video / ExternalLink olduqda true — fayl yox, link saxlanılır. */
   isLinkBased: boolean;
+  isPurchased: boolean;
+  /** Pulsuzdur VƏ YA alınıb VƏ YA sizinkidir — "Səbətə at" bunun tərsinə görə göstərilir. */
+  canAccess: boolean;
   createdAt: string;
   approvedAt: string | null;
 }
@@ -177,6 +180,19 @@ export interface CreateTrainingRequest {
   seatLimit: number | null;
   syllabus: string[];
   lessons?: LessonInput[];
+}
+
+export interface UpdateTrainingRequest {
+  name: string;
+  format: TrainingFormat;
+  description: string;
+  price: number;
+  durationHours: number;
+  metaLabel: string;
+  /** Mövcud qeydiyyat sayından aşağı ola bilməz (400). */
+  seatLimit: number | null;
+  /** Göndərilsə tam əvəz olunur, `null` buraxılsa toxunulmur. */
+  syllabus: string[] | null;
 }
 
 export interface MyTraining {
@@ -368,6 +384,302 @@ export interface SalesSummary {
   resourceRevenue: number;
   trainingRevenue: number;
   commissionPercent: number;
+}
+
+/* ---------- Sınaqlar (imtahan modulu) ---------- */
+
+export type ExamAttemptStatus = 'InProgress' | 'Submitted' | 'Expired';
+
+export interface Exam {
+  id: string;
+  name: string;
+  subject: string;
+  grade: number | null;
+  authorId: string;
+  authorName: string;
+  durationMinutes: number;
+  passPercent: number;
+  isPaid: boolean;
+  price: number;
+  status: ResourceStatus;
+  sectionCount: number;
+  questionCount: number;
+  attemptCount: number;
+  isPurchased: boolean;
+  /** false → "Səbətə at", true → "Sınağa başla". */
+  canAccess: boolean;
+  createdAt: string;
+  approvedAt: string | null;
+}
+
+export interface ExamSectionSummary {
+  id: string;
+  orderIndex: number;
+  subject: string;
+  questionCount: number;
+}
+
+export interface ExamDetail extends Exam {
+  description: string;
+  rejectionReason: string | null;
+  sections: ExamSectionSummary[];
+  /** Doludursa istifadəçi sınağa başlayıb — statusa görə "Davam et"/"Nəticəyə bax". */
+  myAttempt: ExamAttemptSummary | null;
+}
+
+export interface ExamQuestionInput {
+  questionText: string;
+  /** `POST /exams/{id}/images` cavabındakı dəyər. Sual ya mətn, ya şəkil ehtiva etməlidir. */
+  imagePath?: string | null;
+  options: string[];
+  correctOptionIndex: number;
+}
+
+export interface ExamSectionInput {
+  subject: string;
+  questions: ExamQuestionInput[];
+}
+
+export interface CreateExamRequest {
+  name: string;
+  description: string;
+  subject: string;
+  grade: number | null;
+  durationMinutes: number;
+  passPercent: number;
+  isPaid: boolean;
+  price: number;
+  sections: ExamSectionInput[];
+}
+
+/** Meta yeniləmə — suallara toxunmur. */
+export type UpdateExamRequest = Omit<CreateExamRequest, 'sections'>;
+
+export interface SaveExamSectionsRequest {
+  sections: ExamSectionInput[];
+}
+
+export interface ExamImageUploadResult {
+  imagePath: string;
+  /** Göstərmək üçün: `${API_ORIGIN}${imageUrl}`. */
+  imageUrl: string;
+}
+
+/* --- Sınağın verilməsi --- */
+
+export interface ExamRunQuestion {
+  id: string;
+  orderIndex: number;
+  questionText: string;
+  imageUrl: string | null;
+  options: string[];
+  // correctOptionIndex BURADA YOXDUR
+}
+
+export interface ExamRunSection {
+  id: string;
+  orderIndex: number;
+  subject: string;
+  questions: ExamRunQuestion[];
+}
+
+export interface ExamRun {
+  attemptId: string;
+  examId: string;
+  examName: string;
+  durationMinutes: number;
+  startedAt: string;
+  expiresAt: string;
+  /** SAYĞAC BUNDAN QURULUR — lokal saatdan yox. */
+  remainingSeconds: number;
+  sections: ExamRunSection[];
+  questionCount: number;
+}
+
+export interface ExamAnswer {
+  questionId: string;
+  /** Cavabsız sual üçün `null` — səhv sayılır. */
+  selectedIndex: number | null;
+}
+
+export interface ExamResultQuestion {
+  questionId: string;
+  orderIndex: number;
+  questionText: string;
+  imageUrl: string | null;
+  options: string[];
+  correctOptionIndex: number;
+  selectedIndex: number | null;
+  isCorrect: boolean;
+}
+
+export interface ExamResultSection {
+  sectionId: string;
+  subject: string;
+  correctCount: number;
+  questionCount: number;
+  scorePercent: number;
+  questions: ExamResultQuestion[];
+}
+
+export interface ExamResult {
+  attemptId: string;
+  examId: string;
+  examName: string;
+  status: Exclude<ExamAttemptStatus, 'InProgress'>;
+  scorePercent: number;
+  correctCount: number;
+  questionCount: number;
+  passPercent: number;
+  passed: boolean;
+  startedAt: string;
+  submittedAt: string | null;
+  elapsedSeconds: number;
+  sections: ExamResultSection[];
+  certificateCode: string | null;
+}
+
+export interface ExamAttemptSummary {
+  id: string;
+  examId: string;
+  examName: string;
+  status: ExamAttemptStatus;
+  scorePercent: number;
+  correctCount: number;
+  questionCount: number;
+  passed: boolean;
+  startedAt: string;
+  expiresAt: string;
+  submittedAt: string | null;
+  certificateCode: string | null;
+}
+
+export interface ExamQuery {
+  subject?: string;
+  grade?: number;
+  isPaid?: boolean;
+  search?: string;
+  status?: ResourceStatus;
+  page?: number;
+  pageSize?: number;
+}
+
+/* ---------- Admin icmalı və audit log ---------- */
+
+export interface TrafficStats {
+  totalRequests: number;
+  requestsLast24Hours: number;
+  failedRequests: number;
+  clientErrors: number;
+  serverErrors: number;
+  serverErrorsLast24Hours: number;
+  averageDurationMs: number;
+  errorRatePercent: number;
+}
+
+export interface ContentStats {
+  totalUsers: number;
+  totalResources: number;
+  pendingResources: number;
+  approvedResources: number;
+  rejectedResources: number;
+  totalDownloads: number;
+  blogPosts: number;
+  issuedCertificates: number;
+}
+
+export interface TrainingStats {
+  totalTrainings: number;
+  liveTrainings: number;
+  onlineTrainings: number;
+  videoTrainings: number;
+  totalLessons: number;
+  totalEnrollments: number;
+  completedEnrollments: number;
+  soldTrainings: number;
+  trainingRevenue: number;
+}
+
+export interface DashboardSalesStats {
+  gmv: number;
+  commissionTotal: number;
+  authorPayoutTotal: number;
+  paidOrders: number;
+  pendingOrders: number;
+  soldResources: number;
+  resourceRevenue: number;
+}
+
+export interface ExamStats {
+  totalExams: number;
+  pendingExams: number;
+  approvedExams: number;
+  rejectedExams: number;
+  totalQuestions: number;
+  totalAttempts: number;
+  attemptsInProgress: number;
+  passedAttempts: number;
+  averageScorePercent: number;
+  soldExams: number;
+  examRevenue: number;
+}
+
+export interface TopError {
+  method: string;
+  path: string;
+  statusCode: number;
+  count: number;
+  lastOccurredAt: string;
+}
+
+export interface TopTraining {
+  trainingId: string;
+  name: string;
+  enrollmentCount: number;
+  revenue: number;
+}
+
+export interface AdminDashboard {
+  traffic: TrafficStats;
+  content: ContentStats;
+  trainings: TrainingStats;
+  sales: DashboardSalesStats;
+  exams: ExamStats;
+  topErrors: TopError[];
+  topTrainings: TopTraining[];
+  generatedAt: string;
+}
+
+export interface RequestLog {
+  id: number;
+  traceId: string;
+  method: string;
+  path: string;
+  queryString: string | null;
+  statusCode: number;
+  durationMs: number;
+  userId: string | null;
+  userEmail: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  requestContentType: string | null;
+  /** Şifrə/token sahələri "***" ilə maskalanıb. */
+  requestBody: string | null;
+  responseBody: string | null;
+  exceptionType: string | null;
+  createdAt: string;
+}
+
+export interface RequestLogQuery {
+  method?: string;
+  path?: string;
+  statusCode?: number;
+  userId?: string;
+  onlyErrors?: boolean;
+  from?: string;
+  to?: string;
+  page?: number;
+  pageSize?: number;
 }
 
 /* ---------- Blog ---------- */

@@ -1,15 +1,29 @@
 import { api } from './client';
 import type {
+  AdminDashboard,
   AdminUser,
+  ExamDetail,
   Order,
-  Resource,
+  PagedResult,
+  RequestLog,
+  RequestLogQuery,
   ResourceDetail,
   SalesSummary,
 } from '../types';
 
 export const adminApi = {
+  /** Panelin baş səhifəsi — bütün icmal göstəriciləri tək sorğuda. */
+  async dashboard() {
+    const { data } = await api.get<AdminDashboard>('/admin/dashboard');
+    return data;
+  },
+
+  /**
+   * Moderasiya növbəsi. `ResourceDetailDto` qaytarır — moderator təsdiqdən
+   * əvvəl linki və fayl adını görməlidir.
+   */
   async pendingResources() {
-    const { data } = await api.get<Resource[]>('/admin/resources/pending');
+    const { data } = await api.get<ResourceDetail[]>('/admin/resources/pending');
     return data;
   },
 
@@ -25,6 +39,21 @@ export const adminApi = {
     return data;
   },
 
+  async pendingExams() {
+    const { data } = await api.get<ExamDetail[]>('/admin/exams/pending');
+    return data;
+  },
+
+  async approveExam(id: string) {
+    const { data } = await api.post<ExamDetail>(`/admin/exams/${id}/approve`);
+    return data;
+  },
+
+  async rejectExam(id: string, reason?: string) {
+    const { data } = await api.post<ExamDetail>(`/admin/exams/${id}/reject`, { reason });
+    return data;
+  },
+
   async users() {
     const { data } = await api.get<AdminUser[]>('/admin/users');
     return data;
@@ -37,6 +66,14 @@ export const adminApi = {
 
   async orders() {
     const { data } = await api.get<Order[]>('/admin/orders');
+    return data;
+  },
+
+  /** HTTP audit log — bütün sorğuların tarixçəsi. */
+  async logs(query: RequestLogQuery = {}) {
+    const { data } = await api.get<PagedResult<RequestLog>>('/admin/logs', {
+      params: query,
+    });
     return data;
   },
 };

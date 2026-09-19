@@ -28,6 +28,7 @@ export function ResourceCard({
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge tone="neutral">{resourceTypeLabel(resource.type)}</StatusBadge>
         <PriceBadge isPaid={resource.isPaid} price={resource.price} />
+        {resource.isPurchased && <StatusBadge tone="free">Alınıb</StatusBadge>}
         {resource.hasQuiz && (
           <StatusBadge tone={showQuizState && quizPassed ? 'free' : 'info'}>
             {showQuizState && quizPassed ? 'İmtahan keçilib' : 'İmtahan var'}
@@ -58,17 +59,24 @@ export function ResourceCard({
       </p>
 
       <div className="mt-5 border-t border-brand-borderLight pt-4">
-        {resource.isPaid ? (
-          <Button size="sm" fullWidth disabled={busy} onClick={onAddToCart}>
-            Səbətə əlavə et
-          </Button>
-        ) : (
+        {/* canAccess: pulsuzdur, alınıb və ya sizinkidir — "Səbətə at" yalnız tərsində. */}
+        {resource.canAccess ? (
           <Button size="sm" variant="secondary" fullWidth disabled={busy} onClick={onDownload}>
             {resource.type === 'Video'
-              ? 'Pulsuz izlə'
+              ? resource.isPaid
+                ? 'İzlə'
+                : 'Pulsuz izlə'
               : resource.isLinkBased
-                ? 'Pulsuz aç'
-                : 'Pulsuz endir'}
+                ? resource.isPaid
+                  ? 'Materialı aç'
+                  : 'Pulsuz aç'
+                : resource.isPaid
+                  ? 'Endir'
+                  : 'Pulsuz endir'}
+          </Button>
+        ) : (
+          <Button size="sm" fullWidth disabled={busy} onClick={onAddToCart}>
+            Səbətə əlavə et
           </Button>
         )}
       </div>

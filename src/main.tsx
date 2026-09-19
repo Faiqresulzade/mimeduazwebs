@@ -7,6 +7,7 @@ import { CartProvider } from './context/CartContext';
 import { ToastProvider } from './context/ToastContext';
 import { ToastViewport } from './components/layout/Toast';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import 'katex/dist/katex.min.css';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(

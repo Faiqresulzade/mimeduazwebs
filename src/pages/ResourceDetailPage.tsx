@@ -188,36 +188,39 @@ export default function ResourceDetailPage() {
 
         <aside className="space-y-4 lg:sticky lg:top-24">
           <div className="card">
-            {resource.isPaid ? (
-              <>
-                <p className="font-heading text-3xl font-bold text-brand-navy">
-                  {resource.price} ₼
-                </p>
-                <Button
-                  className="mt-5"
-                  fullWidth
-                  disabled={busy}
-                  onClick={() => add('Resource', resourceId)}
-                >
-                  Səbətə əlavə et
-                </Button>
-              </>
+            <p className="font-heading text-3xl font-bold text-brand-navy">
+              {resource.isPaid ? `${resource.price} ₼` : 'Pulsuz'}
+            </p>
+
+            {resource.isPurchased && (
+              <p className="mt-2">
+                <StatusBadge tone="free">Alınıb</StatusBadge>
+              </p>
+            )}
+
+            {/* canAccess: pulsuzdur, alınıb və ya sizinkidir. */}
+            {resource.canAccess ? (
+              <Button
+                className="mt-5"
+                fullWidth
+                disabled={busy}
+                onClick={() => download(resourceId)}
+              >
+                {resource.type === 'Video'
+                  ? 'İzlə'
+                  : resource.isLinkBased
+                    ? 'Materialı aç'
+                    : 'Endir'}
+              </Button>
             ) : (
-              <>
-                <p className="font-heading text-3xl font-bold text-brand-navy">Pulsuz</p>
-                <Button
-                  className="mt-5"
-                  fullWidth
-                  disabled={busy}
-                  onClick={() => download(resourceId)}
-                >
-                  {resource.type === 'Video'
-                    ? 'Pulsuz izlə'
-                    : resource.isLinkBased
-                      ? 'Materialı aç'
-                      : 'Pulsuz endir'}
-                </Button>
-              </>
+              <Button
+                className="mt-5"
+                fullWidth
+                disabled={busy}
+                onClick={() => add('Resource', resourceId)}
+              >
+                Səbətə əlavə et
+              </Button>
             )}
           </div>
 

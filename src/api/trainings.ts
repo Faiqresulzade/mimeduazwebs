@@ -7,6 +7,7 @@ import type {
   Training,
   TrainingDetail,
   TrainingLessons,
+  UpdateTrainingRequest,
 } from '../types';
 
 export const trainingsApi = {
@@ -28,6 +29,16 @@ export const trainingsApi = {
   async create(payload: CreateTrainingRequest) {
     const { data } = await api.post<TrainingDetail>('/trainings', payload);
     return data;
+  },
+
+  async update(id: string, payload: UpdateTrainingRequest) {
+    const { data } = await api.put<TrainingDetail>(`/trainings/${id}`, payload);
+    return data;
+  },
+
+  /** Qeydiyyatı olan təlim silinmir — backend 409 qaytarır. */
+  async remove(id: string) {
+    await api.delete(`/trainings/${id}`);
   },
 
   /** Yalnız təlimə yazılanlar üçün — başqasına 403. */
