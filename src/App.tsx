@@ -36,6 +36,7 @@ const MyCertificatesTab = lazy(
 const EarningsTab = lazy(() => import('./components/workspace/teacher/EarningsTab'));
 const ExamBuilderTab = lazy(() => import('./components/workspace/teacher/ExamBuilderTab'));
 const PurchasedTab = lazy(() => import('./components/workspace/teacher/PurchasedTab'));
+const KsqTab = lazy(() => import('./components/workspace/teacher/KsqTab'));
 
 const AdminPanelPage = lazy(() => import('./pages/AdminPanelPage'));
 const ModerationTab = lazy(() => import('./components/workspace/admin/ModerationTab'));
@@ -108,6 +109,7 @@ export default function App() {
             <Route path="sinaqlarim" element={<ExamBuilderTab />} />
             <Route path="sertifikatlarim" element={<MyCertificatesTab />} />
             <Route path="qazanc" element={<EarningsTab />} />
+            <Route path="ksq-yoxlama" element={<KsqTab />} />
           </Route>
         </Route>
 

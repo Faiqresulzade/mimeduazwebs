@@ -719,3 +719,70 @@ export interface PlatformStats {
   teacherCount: number;
   totalDownloads: number;
 }
+
+/* ---------- KSQ cavab kartı yoxlaması ---------- */
+
+export type KsqLetter = 'A' | 'B' | 'C' | 'D' | 'E';
+export type KsqVariant = 'A' | 'B';
+
+export interface KsqTest {
+  id: string;
+  name: string;
+  closedPoints: number[];
+  openPoints: number[];
+  keyA: (KsqLetter | null)[];
+  keyB: (KsqLetter | null)[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveKsqTestRequest {
+  name: string;
+  closedPoints: number[];
+  openPoints: number[];
+  keyA: (KsqLetter | null)[];
+  keyB: (KsqLetter | null)[];
+}
+
+/** Sahə adları orijinal KSQ alətinin qeyd formatı ilə eynidir. */
+export interface KsqResult {
+  id: string;
+  test: string;
+  testId: string;
+  sinif: string;
+  ad: string;
+  variant: KsqVariant;
+  kod: string;
+  cavablar: (KsqLetter | null)[];
+  aciq: number[];
+  bal: number;
+  max: number;
+  sehv: number[];
+  ts: string;
+}
+
+export interface KsqResultList {
+  items: KsqResult[];
+  classes: string[];
+}
+
+export interface SaveKsqResultRequest {
+  testId: string;
+  sinif: string;
+  ad: string;
+  variant: KsqVariant;
+  kod: string;
+  cavablar: (KsqLetter | null)[];
+  aciq: (number | null)[];
+}
+
+/** AI-ın kartdan oxuduğu. `aciqCavablar` — açıq suala yazılmış mətn, bal deyil. */
+export interface KsqScanResult {
+  ad: string | null;
+  variant: KsqVariant | null;
+  kod: string | null;
+  cavablar: (KsqLetter | null)[];
+  aciqCavablar: (string | null)[];
+  unsure: number[];
+  qeyd: string | null;
+}

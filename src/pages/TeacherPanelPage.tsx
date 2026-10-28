@@ -14,6 +14,7 @@ const authorTabs: WorkspaceTab[] = [
   { to: '/panel/yukle', label: 'Yüklə' },
   { to: '/panel/imtahanlar', label: 'İmtahanlar' },
   { to: '/panel/sinaqlarim', label: 'Sınaqlarım' },
+  { to: '/panel/ksq-yoxlama', label: 'KSQ yoxlama' },
   { to: '/panel/qazanc', label: 'Qazanc' },
 ];
 

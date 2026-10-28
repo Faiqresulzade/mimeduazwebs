@@ -14,8 +14,13 @@ const navItems = [
   { to: '/haqqimizda', label: 'Haqqımızda' },
 ];
 
+const ksqNavItem = { to: '/panel/ksq-yoxlama', label: 'KSQ yoxlama' };
+
 export function Header() {
-  const { user, isAuthenticated, panelPath, logout } = useAuth();
+  const { user, isAuthenticated, panelPath, logout, canPublishResources } = useAuth();
+
+  // KSQ yoxlama yalnız müəllim/admin üçündür (backend AuthorRoles).
+  const items = canPublishResources ? [...navItems, ksqNavItem] : navItems;
   const { count } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -61,7 +66,7 @@ export function Header() {
         </Link>
 
         <nav aria-label="Əsas naviqasiya" className="hidden items-center gap-1 lg:flex">
-          {navItems.map((item) => (
+          {items.map((item) => (
             <NavLink key={item.to} to={item.to} className={linkClass}>
               {item.label}
             </NavLink>
@@ -154,7 +159,7 @@ export function Header() {
       {mobileOpen && (
         <nav aria-label="Mobil naviqasiya" className="border-t border-brand-borderLight lg:hidden">
           <ul className="shell flex flex-col py-2">
-            {navItems.map((item) => (
+            {items.map((item) => (
               <li key={item.to}>
                 <NavLink
                   to={item.to}

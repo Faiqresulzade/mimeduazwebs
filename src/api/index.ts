@@ -9,3 +9,4 @@ export { certificatesApi, certificateDocumentUrl } from './certificates';
 export { adminApi } from './admin';
 export { blogApi } from './blog';
 export { examsApi } from './exams';
+export { ksqApi } from './ksq';
