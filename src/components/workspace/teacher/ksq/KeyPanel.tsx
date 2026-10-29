@@ -3,14 +3,19 @@ import { ksqApi } from '../../../../api';
 import { apiErrorMessage } from '../../../../hooks/useApiError';
 import { useToast } from '../../../../hooks/useToast';
 import {
+  detectFormat,
+  KSQ_CUSTOM,
   KSQ_MAX_CLOSED,
   KSQ_MAX_OPEN,
+  KSQ_NEW_CLOSED_POINTS,
+  KSQ_NEW_OPEN_POINTS,
   KSQ_PRESETS,
   KSQ_VARIANTS,
   keyReady,
   normalize,
-  normalizePoints,
+  presetMatches,
   sum,
+  type KsqFormat,
 } from '../../../../lib/ksq';
 import type { KsqLetter, KsqTest, KsqVariant, SaveKsqTestRequest } from '../../../../types';
 import { Button } from '../../../ui/Button';
@@ -43,10 +48,6 @@ function toDraft(test: KsqTest): SaveKsqTestRequest {
   };
 }
 
-function sameNumbers(a: number[], b: number[]) {
-  return a.length === b.length && a.every((value, i) => value === b[i]);
-}
-
 interface KeyPanelProps {
   tests: KsqTest[];
   onSaved: (test: KsqTest) => void;
@@ -59,6 +60,9 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
   const [selectedId, setSelectedId] = useState<string>(() => tests[0]?.id ?? NEW_TEST);
   const [draft, setDraft] = useState<SaveKsqTestRequest>(() =>
     tests[0] ? toDraft(tests[0]) : emptyDraft(),
+  );
+  const [format, setFormat] = useState<KsqFormat>(() =>
+    detectFormat(draft.closedPoints, draft.openPoints),
   );
   const [dirty, setDirty] = useState(false);
   const [variant, setVariant] = useState<KsqVariant>('A');
@@ -83,12 +87,14 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
     () => ({ closed: sum(draft.closedPoints), open: sum(draft.openPoints) }),
     [draft.closedPoints, draft.openPoints],
   );
+  const total = totals.closed + totals.open;
 
   function load(id: string) {
     const test = tests.find((t) => t.id === id);
     const next = test ? toDraft(test) : emptyDraft();
     setSelectedId(id);
     setDraft(next);
+    setFormat(detectFormat(next.closedPoints, next.openPoints));
     setClosedInput(String(next.closedPoints.length));
     setOpenInput(String(next.openPoints.length));
     setVariant('A');
@@ -105,34 +111,43 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
     setDirty(true);
   }
 
-  function resizeClosed(count: number) {
+  /**
+   * Bal və ya say dəyişəndə: preset aktivdirsə və yeni massivlər ona artıq
+   * uyğun gəlmirsə, chip avtomatik Sərbəst-ə keçir.
+   */
+  function applyPoints(closedPoints: number[], openPoints: number[]) {
     setDraft((current) => ({
       ...current,
-      closedPoints: normalizePoints(current.closedPoints, count),
-      keyA: normalize(current.keyA, count, null),
-      keyB: normalize(current.keyB, count, null),
+      closedPoints,
+      openPoints,
+      // Yeni qapalı sualın cavabı hər iki variantda boşdur; azalanda sondan kəsilir.
+      keyA: normalize(current.keyA, closedPoints.length, null),
+      keyB: normalize(current.keyB, closedPoints.length, null),
     }));
+    if (format !== KSQ_CUSTOM && !presetMatches(format, closedPoints, openPoints)) {
+      setFormat(KSQ_CUSTOM);
+    }
     setDirty(true);
   }
 
-  function resizeOpen(count: number) {
-    setDraft((current) => ({ ...current, openPoints: normalizePoints(current.openPoints, count) }));
-    setDirty(true);
+  /** Preset seçiləndə onun say və balları tətbiq olunur; mövcud sualların cavabları qalır. */
+  function selectPreset(index: number) {
+    const preset = KSQ_PRESETS[index];
+    setFormat(index);
+    applyPoints([...preset.closed], [...preset.open]);
+    setClosedInput(String(preset.closed.length));
+    setOpenInput(String(preset.open.length));
   }
 
-  function applyPreset(closed: number[], open: number[]) {
-    setDraft((current) => ({
-      ...current,
-      closedPoints: [...closed],
-      openPoints: [...open],
-      keyA: normalize(current.keyA, closed.length, null),
-      keyB: normalize(current.keyB, closed.length, null),
-    }));
-    setClosedInput(String(closed.length));
-    setOpenInput(String(open.length));
-    setDirty(true);
+  /** Sərbəst seçiləndə heç nə sıfırlanmır — müəllim cari formatdan davam edir. */
+  function selectCustom() {
+    setFormat(KSQ_CUSTOM);
   }
 
+  /**
+   * Say sahəsi: boş və ya rəqəm olmayan yazı nəzərə alınmır (blur-da əvvəlki dəyər qayıdır),
+   * rəqəm isə tam ədədə yuvarlaqlaşdırılıb min/max arasına salınır.
+   */
   function handleCountChange(
     raw: string,
     setRaw: (value: string) => void,
@@ -140,9 +155,22 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
     max: number,
     apply: (count: number) => void,
   ) {
-    setRaw(raw);
-    const count = Number(raw);
-    if (raw !== '' && Number.isInteger(count) && count >= min && count <= max) apply(count);
+    const value = Number(raw);
+    if (raw.trim() === '' || !Number.isFinite(value)) {
+      setRaw(raw);
+      return;
+    }
+    const count = Math.min(max, Math.max(min, Math.round(value)));
+    setRaw(String(count));
+    apply(count);
+  }
+
+  function resizeClosed(count: number) {
+    applyPoints(normalize(draft.closedPoints, count, KSQ_NEW_CLOSED_POINTS), draft.openPoints);
+  }
+
+  function resizeOpen(count: number) {
+    applyPoints(draft.closedPoints, normalize(draft.openPoints, count, KSQ_NEW_OPEN_POINTS));
   }
 
   function setAnswer(index: number, letter: KsqLetter | null) {
@@ -155,14 +183,16 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
     setDirty(true);
   }
 
+  /** Bal: tam ədəd, 0–100. Boş sahə 0 sayılır ki, NaN heç vaxt saxlanmasın. */
   function setPoint(field: 'closedPoints' | 'openPoints', index: number, raw: string) {
-    const value = Math.max(0, Math.min(100, Math.round(Number(raw) || 0)));
-    setDraft((current) => {
-      const next = [...current[field]];
-      next[index] = value;
-      return { ...current, [field]: next };
-    });
-    setDirty(true);
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return;
+    const value = Math.max(0, Math.min(100, Math.round(parsed)));
+
+    const next = [...draft[field]];
+    next[index] = value;
+    if (field === 'closedPoints') applyPoints(next, draft.openPoints);
+    else applyPoints(draft.closedPoints, next);
   }
 
   async function handleSave() {
@@ -182,6 +212,7 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
       onSaved(saved);
       setSelectedId(saved.id);
       setDraft(toDraft(saved));
+      setFormat(detectFormat(saved.closedPoints, saved.openPoints));
       setDirty(false);
       toast('Açar yadda saxlanıldı.');
     } catch (err) {
@@ -262,18 +293,14 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
             Format
           </span>
           <div className="flex flex-wrap gap-2">
-            {KSQ_PRESETS.map((preset) => (
-              <Chip
-                key={preset.label}
-                active={
-                  sameNumbers(draft.closedPoints, preset.closed) &&
-                  sameNumbers(draft.openPoints, preset.open)
-                }
-                onClick={() => applyPreset(preset.closed, preset.open)}
-              >
+            {KSQ_PRESETS.map((preset, index) => (
+              <Chip key={preset.label} active={format === index} onClick={() => selectPreset(index)}>
                 {preset.label}
               </Chip>
             ))}
+            <Chip active={format === KSQ_CUSTOM} onClick={selectCustom}>
+              Sərbəst
+            </Chip>
           </div>
         </div>
 
@@ -285,6 +312,8 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
             label="Qapalı sual sayı"
             min={1}
             max={KSQ_MAX_CLOSED}
+            disabled={format !== KSQ_CUSTOM}
+            className="disabled:bg-brand-chipBg disabled:text-brand-muted"
             value={closedInput}
             onChange={(e) =>
               handleCountChange(e.target.value, setClosedInput, 1, KSQ_MAX_CLOSED, resizeClosed)
@@ -298,6 +327,8 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
             label="Açıq sual sayı"
             min={0}
             max={KSQ_MAX_OPEN}
+            disabled={format !== KSQ_CUSTOM}
+            className="disabled:bg-brand-chipBg disabled:text-brand-muted"
             value={openInput}
             onChange={(e) =>
               handleCountChange(e.target.value, setOpenInput, 0, KSQ_MAX_OPEN, resizeOpen)
@@ -305,6 +336,11 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
             onBlur={() => setOpenInput(String(openCount))}
           />
         </div>
+        {format !== KSQ_CUSTOM && (
+          <p className="text-xs text-brand-faint">
+            Sual sayını dəyişmək üçün "Sərbəst" formatını seçin.
+          </p>
+        )}
       </div>
 
       <div className="card space-y-4">
@@ -368,10 +404,16 @@ export function KeyPanel({ tests, onSaved, onDeleted }: KeyPanelProps) {
           </div>
         )}
 
-        <p className="rounded-xl bg-brand-chipBg px-4 py-3 text-sm text-brand-slate">
-          Ümumi bal: <strong className="text-brand-navy">{totals.closed + totals.open}</strong>{' '}
-          (qapalı: {totals.closed} + açıq: {totals.open})
-        </p>
+        <div className="rounded-xl bg-brand-chipBg px-4 py-3 text-sm text-brand-slate">
+          <p>
+            Cəmi: <strong className="text-brand-navy">{total} bal</strong> (qapalı: {totals.closed}{' '}
+            + açıq: {totals.open})
+          </p>
+          {/* Yalnız xəbərdarlıqdır — 100-dən fərqli cəmi olan test də saxlanır. */}
+          {total !== 100 && (
+            <p className="mt-1 font-medium text-paid-text">Diqqət: cəmi bal 100 deyil.</p>
+          )}
+        </div>
 
         <ErrorNote message={error} />
 

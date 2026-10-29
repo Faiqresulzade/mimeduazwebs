@@ -23,6 +23,16 @@ export const KSQ_PRESETS: KsqPreset[] = [
   },
 ];
 
+/** "Sərbəst" — müəllim sual sayını və balları özü təyin edir. */
+export const KSQ_CUSTOM = 'custom';
+
+/** Aktiv format: preset-in `KSQ_PRESETS`-dəki indeksi və ya Sərbəst. */
+export type KsqFormat = number | typeof KSQ_CUSTOM;
+
+/** Sərbəst formatda yeni əlavə olunan sualın standart balı. */
+export const KSQ_NEW_CLOSED_POINTS = 1;
+export const KSQ_NEW_OPEN_POINTS = 10;
+
 /** Massivi verilən uzunluğa gətirir: artıq elementlər kəsilir, çatmayanlar `fill` ilə doldurulur. */
 export function normalize<T>(list: T[], length: number, fill: T): T[] {
   const result = list.slice(0, length);
@@ -30,9 +40,22 @@ export function normalize<T>(list: T[], length: number, fill: T): T[] {
   return result;
 }
 
-/** Bal massivini böyüdəndə yeni sual əvvəlki sualın balını alır (yoxdursa 1). */
-export function normalizePoints(points: number[], length: number): number[] {
-  return normalize(points, length, points.length ? points[points.length - 1] : 1);
+function sameNumbers(a: number[], b: number[]) {
+  return a.length === b.length && a.every((value, i) => value === b[i]);
+}
+
+export function presetMatches(index: number, closed: number[], open: number[]): boolean {
+  const preset = KSQ_PRESETS[index];
+  return Boolean(preset) && sameNumbers(closed, preset.closed) && sameNumbers(open, preset.open);
+}
+
+/**
+ * Saxlanmış testin formatı bazada yazılmır — ballardan çıxarılır:
+ * hansısa preset-lə tam üst-üstə düşürsə o, əks halda Sərbəst.
+ */
+export function detectFormat(closed: number[], open: number[]): KsqFormat {
+  const index = KSQ_PRESETS.findIndex((_, i) => presetMatches(i, closed, open));
+  return index >= 0 ? index : KSQ_CUSTOM;
 }
 
 /** Variantın açarı yalnız bütün qapalı suallara cavab seçiləndə hazırdır. */
