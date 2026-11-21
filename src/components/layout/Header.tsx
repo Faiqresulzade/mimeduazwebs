@@ -61,8 +61,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-brand-borderLight bg-brand-surface/95 backdrop-blur">
       <div className="shell flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="font-heading text-lg font-bold tracking-tight text-brand-navy">
-          MIMEDU<span className="text-brand-blue">.AZ</span>
+        <Link
+          to="/"
+          className="flex items-center gap-2 font-heading text-lg font-bold tracking-tight text-brand-navy"
+        >
+          <img src="/logo-mark.png" alt="" width={36} height={36} className="h-9 w-9" />
+          <span>
+            MIMEDU<span className="text-brand-blue">.AZ</span>
+          </span>
         </Link>
 
         <nav aria-label="Əsas naviqasiya" className="hidden items-center gap-1 lg:flex">

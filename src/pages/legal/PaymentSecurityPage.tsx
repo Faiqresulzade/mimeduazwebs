@@ -1,6 +1,6 @@
 import { LegalPage, LegalSection } from '../../components/legal/LegalLayout';
 import { CardBrands } from '../../components/legal/CardBrands';
-import { MERCHANT_NAME, SUPPORT_EMAIL, TERMS_UPDATED_AT } from '../../data/legal';
+import { CARD_ACCEPTANCE_NOTE, MERCHANT_NAME, SUPPORT_EMAIL, TERMS_UPDATED_AT } from '../../data/legal';
 
 /** Ödəniş təhlükəsizliyi: kart məlumatı saytdan keçmir — AzeriCard-ın hosted səhifəsi. */
 export default function PaymentSecurityPage() {
@@ -43,7 +43,12 @@ export default function PaymentSecurityPage() {
       </LegalSection>
 
       <LegalSection title="Qəbul olunan kartlar və valyuta">
-        <p>Visa və Mastercard bank kartları. Ödəniş valyutası — Azərbaycan manatı (AZN).</p>
+        <p>
+          Visa və Mastercard bank kartları. Ödəniş valyutası — Azərbaycan manatı (AZN).
+        </p>
+        <p>
+          <strong>{CARD_ACCEPTANCE_NOTE}</strong>
+        </p>
         <CardBrands />
       </LegalSection>
 

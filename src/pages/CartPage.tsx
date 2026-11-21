@@ -12,7 +12,7 @@ import { ErrorNote } from '../components/ui/ErrorNote';
 import { Spinner } from '../components/ui/Spinner';
 import { formatPrice } from '../lib/format';
 import { buildClientInfo, submitPaymentForm } from '../lib/payment';
-import { MERCHANT_NAME } from '../data/legal';
+import { CARD_ACCEPTANCE_NOTE, MERCHANT_NAME } from '../data/legal';
 import type { PaymentConfig } from '../types';
 
 const link = 'text-brand-blue underline';
@@ -206,6 +206,7 @@ export default function CartPage() {
                     Ətraflı
                   </Link>
                 </p>
+                <p className="font-medium text-brand-slate">{CARD_ACCEPTANCE_NOTE}</p>
                 <CardBrands compact />
               </div>
             )}

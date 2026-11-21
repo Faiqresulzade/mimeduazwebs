@@ -5,11 +5,18 @@
  */
 export const SELLER_NAME = 'Fərdi sahibkar Vəfa Kərimli Zeyqəm';
 export const SELLER_VOEN = '4002166852';
-export const SELLER_ADDRESS = 'Bakı, Xətai r., Lütfi Zadə küç. 24';
+/** VÖEN-də qeydiyyatda olan ünvan (ofis yoxdur — fəaliyyət onlayndır). */
+export const SELLER_ADDRESS = 'Bakı şəhəri, Xətai rayonu, Lütfi Zadə küçəsi 24';
 export const SELLER_PHONE = '+994 55 861 60 88';
 export const SELLER_PHONE_HREF = '+994558616088';
 export const SUPPORT_EMAIL = 'vefakerimli92@gmail.com';
 export const MERCHANT_NAME = 'MIMEDU.AZ';
+/** Loqodakı tam ad — MİM qısaltmasının açılışı. */
+export const BRAND_FULL_NAME = 'Müəllimlərin İnkişaf Mərkəzi';
+
+/** Bank tələbi: yalnız ölkədaxili kartlar qəbul olunur. */
+export const CARD_ACCEPTANCE_NOTE =
+  'Yalnız Azərbaycan banklarının buraxdığı Visa və Mastercard kartları qəbul olunur. Xarici bank kartları ilə ödəniş mümkün deyil.';
 export const SUPPORT_HOURS = 'Bazar ertəsi – Cümə, 10:00–18:00';
 
 /** Müraciətə cavab müddəti (geri qaytarma, giriş problemi). */

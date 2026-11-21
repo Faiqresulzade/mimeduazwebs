@@ -81,7 +81,8 @@ export default function TermsPage() {
             Səbətdə göstərilən məbləğ yekun məbləğdir — ödəniş zamanı əlavə xidmət haqqı tutulmur.
           </li>
           <li>
-            Ödəniş yalnız bank kartı (Visa, Mastercard) ilə, AzeriCard ödəniş sisteminin təhlükəsiz
+            Ödəniş yalnız Azərbaycan banklarının buraxdığı bank kartı (Visa, Mastercard) ilə — xarici
+            kartlar qəbul olunmur — AzeriCard ödəniş sisteminin təhlükəsiz
             səhifəsində aparılır. Kart məlumatlarını {MERCHANT_NAME} görmür və saxlamır (bax:{' '}
             <Link to="/odenis-tehlukesizliyi" className={link}>
               Ödəniş təhlükəsizliyi

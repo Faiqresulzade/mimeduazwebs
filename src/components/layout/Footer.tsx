@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useSectionLink } from '../../hooks/useSectionLink';
 import { CardBrands } from '../legal/CardBrands';
 import {
+  BRAND_FULL_NAME,
   LEGAL_LINKS,
   MERCHANT_NAME,
   SELLER_ADDRESS,
@@ -19,9 +20,11 @@ export function Footer() {
     <footer className="mt-20 border-t border-brand-borderLight bg-brand-surface">
       <div className="shell grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div>
-          <Link to="/" className="font-heading text-lg font-bold text-brand-navy">
+          <Link to="/" className="flex items-center gap-2 font-heading text-lg font-bold text-brand-navy">
+            <img src="/logo-mark.png" alt="" width={36} height={36} className="h-9 w-9" />
             MIMEDU.AZ
           </Link>
+          <p className="mt-1 text-[13px] font-semibold text-brand-slate">{BRAND_FULL_NAME}</p>
           <p className="mt-3 max-w-xs text-sm text-brand-muted">
             Müəllimlər üçün təlim, resurs bankı və koda görə yoxlanılan sertifikat
             platforması.

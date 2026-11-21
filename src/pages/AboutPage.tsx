@@ -1,16 +1,29 @@
 import { Link } from 'react-router-dom';
 import { aboutSteps } from '../data/static';
 import { Button } from '../components/ui/Button';
+import { SellerDetails } from '../components/legal/LegalLayout';
+import { CardBrands } from '../components/legal/CardBrands';
+import { BRAND_FULL_NAME, CARD_ACCEPTANCE_NOTE, MERCHANT_NAME, SUPPORT_HOURS } from '../data/legal';
 
 export default function AboutPage() {
   return (
     <div className="page">
-      <header className="max-w-2xl">
-        <h1 className="hidden font-heading text-3xl font-bold text-brand-navy lg:block">Haqqımızda</h1>
-        <p className="text-base leading-relaxed text-brand-ink lg:mt-3">
-          MIMEDU.AZ müəllimin öyrəndiyini materiala, materialı isə gəlirə çevirdiyi
-          qapalı dövrədir. Beş addımın hamısı bir platformada baş verir.
-        </p>
+      <header className="flex max-w-3xl flex-col gap-6 sm:flex-row sm:items-center">
+        <img
+          src="/logo.png"
+          alt={`${BRAND_FULL_NAME} — Təlimlər, Seminarlar, Sınaqlar`}
+          width={640}
+          height={594}
+          className="h-auto w-44 shrink-0 self-center sm:w-52"
+        />
+        <div>
+          <h1 className="hidden font-heading text-3xl font-bold text-brand-navy lg:block">Haqqımızda</h1>
+          <p className="text-base leading-relaxed text-brand-ink lg:mt-3">
+            <strong>{MERCHANT_NAME}</strong> — <strong>{BRAND_FULL_NAME}</strong> (MİM) platformasıdır.
+            Müəllimlər üçün təlimlər, seminarlar, sınaqlar və resurs bankı bir yerdədir:
+            müəllim öyrəndiyini materiala, materialı isə gəlirə çevirir.
+          </p>
+        </div>
       </header>
 
       <section className="mt-10">
@@ -32,7 +45,37 @@ export default function AboutPage() {
         </ol>
       </section>
 
-      <section id="muellif" className="card mt-12 scroll-mt-24">
+      <section id="odenis" className="card mt-12 scroll-mt-24">
+        <h2 className="font-heading text-xl font-bold text-brand-navy">Ödənişi kim edir?</h2>
+        <div className="mt-3 space-y-3 text-sm leading-relaxed text-brand-ink">
+          <p>
+            Ödənişi saytda qeydiyyatdan keçmiş <strong>istifadəçi özü</strong> — müəllim və ya
+            müəllimliyə hazırlaşan tələbə — yalnız özü üçün seçdiyi məhsula görə edir:
+          </p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              <strong>Təlimlər</strong> — video və canlı təlimə qoşulmaq (sertifikatla);
+            </li>
+            <li>
+              <strong>Resurs Bankı</strong> — ödənişli dərs materialını əldə etmək;
+            </li>
+            <li>
+              <strong>Sınaqlar</strong> — ödənişli onlayn sınaqda iştirak etmək.
+            </li>
+          </ul>
+          <p>
+            Qeydiyyat, pulsuz materiallar və platformaya qoşulmaq <strong>ödənişsizdir</strong> —
+            aylıq abunə haqqı yoxdur. Qiymət hər məhsulun səhifəsində manatla (AZN) göstərilir və
+            ödəniş səbətdən bank kartı ilə, AzeriCard-ın təhlükəsiz səhifəsində edilir.
+          </p>
+          <p className="rounded-xl bg-brand-chipBg p-3 font-medium text-brand-navy">
+            {CARD_ACCEPTANCE_NOTE}
+          </p>
+          <CardBrands />
+        </div>
+      </section>
+
+      <section id="muellif" className="card mt-8 scroll-mt-24">
         <h2 className="font-heading text-xl font-bold text-brand-navy">
           Komissiya şərtləri
         </h2>
@@ -65,6 +108,15 @@ export default function AboutPage() {
         <Link to="/giris?mode=register" className="mt-6 inline-block">
           <Button>Müəllif hesabı aç</Button>
         </Link>
+      </section>
+
+      <section id="rekvizitler" className="card mt-8 scroll-mt-24">
+        <h2 className="font-heading text-xl font-bold text-brand-navy">Rekvizitlər və əlaqə</h2>
+        <p className="mb-4 mt-2 text-sm leading-relaxed text-brand-muted">
+          Platforma onlayn fəaliyyət göstərir — müştəri qəbul edən ofisimiz yoxdur. Aşağıdakı
+          ünvan VÖEN üzrə qeydiyyat ünvanıdır. Müraciətlər: {SUPPORT_HOURS}.
+        </p>
+        <SellerDetails />
       </section>
     </div>
   );
