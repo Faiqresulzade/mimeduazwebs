@@ -9,7 +9,7 @@ export const SELLER_VOEN = '4002166852';
 export const SELLER_ADDRESS = 'Bakı şəhəri, Xətai rayonu, Lütfi Zadə küçəsi 24';
 export const SELLER_PHONE = '+994 55 861 60 88';
 export const SELLER_PHONE_HREF = '+994558616088';
-export const SUPPORT_EMAIL = 'vefakerimli92@gmail.com';
+export const SUPPORT_EMAIL = 'muelliminkisafi@gmail.com';
 export const MERCHANT_NAME = 'MIMEDU.AZ';
 /** Loqodakı tam ad — MİM qısaltmasının açılışı. */
 export const BRAND_FULL_NAME = 'Müəllimlərin İnkişaf Mərkəzi';
