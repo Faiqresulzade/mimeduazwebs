@@ -113,8 +113,7 @@ export default function AboutPage() {
       <section id="rekvizitler" className="card mt-8 scroll-mt-24">
         <h2 className="font-heading text-xl font-bold text-brand-navy">Rekvizitlər və əlaqə</h2>
         <p className="mb-4 mt-2 text-sm leading-relaxed text-brand-muted">
-          Platforma onlayn fəaliyyət göstərir — müştəri qəbul edən ofisimiz yoxdur. Aşağıdakı
-          ünvan VÖEN üzrə qeydiyyat ünvanıdır. Müraciətlər: {SUPPORT_HOURS}.
+          Müraciətlər: {SUPPORT_HOURS}.
         </p>
         <SellerDetails />
       </section>
